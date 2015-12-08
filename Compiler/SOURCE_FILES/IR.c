@@ -240,7 +240,7 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 									  SP());
 
 	/*****************************/
-	/* [11] sp = sp - frame size */
+	/* [11] sp = sp -  frame size */
 	/*****************************/
 	update_new_stack_pointer = T_Move(SP(),
 									  T_Binop(T_minus,
