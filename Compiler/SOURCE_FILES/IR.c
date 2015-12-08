@@ -230,17 +230,22 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	/***********************************/
 	/* [9] save frame pointer המלך מת */
 	/***********************************/
-	save_previous_frame_pointer = T_Const(0);
+	save_previous_frame_pointer = T_Move(T_Mem(SP()), 
+										 FP());
 
 	/********************************/
 	/* [10] fp = sp יחי המלך החדש */
 	/********************************/
-	update_new_frame_pointer = T_Const(0);
+	update_new_frame_pointer = T_Move(FP(),
+									  SP());
 
 	/*****************************/
 	/* [11] sp = sp - frame size */
 	/*****************************/
-	update_new_stack_pointer = T_Const(0);
+	update_new_stack_pointer = T_Move(SP(),
+									  T_Binop(T_minus,
+											  SP(),
+											  T_Const(frame->size)));
 	
 	/****************************/
 	/* [12-15] *** EPILOGUE *** */
@@ -249,32 +254,45 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	/****************************/
 	/* [12] restore previous sp */
 	/****************************/
-	restore_previous_stack_pointer = T_Const(0);
+	restore_previous_stack_pointer = T_Move(SP(),
+											FP());
 
 	/****************************/
 	/* [13] restore previous fp */
 	/****************************/
-	restore_previous_frame_pointer = T_Const(0);
+	restore_previous_frame_pointer = T_Move(FP(),
+											T_Mem(SP()));
 
 	/****************************/
 	/* [14] load return address */
 	/****************************/
-	load_return_address = T_Const(0);
+	load_return_address = T_Move(SP(),
+								 T_Binop(T_plus,
+										 SP(),
+										 T_Const(4)));
 
 	/************************************/
 	/* [15] jump back to return address */
 	/************************************/
-	jump_back_to_return_address = T_Const(0);
+	jump_back_to_return_address = T_Seq(T_Move(RA(),
+											   T_Mem(SP())),
+										T_JumpRegister(RA()));
 
 	/*************************/
 	/* [16] prepare prologue */
 	/*************************/
-	prologue = T_Seq(T_Const(0),T_Const(0));
+	prologue = T_Seq(store_return_address, 
+					 T_Seq(save_previous_frame_pointer,
+						   T_Seq(update_new_frame_pointer,
+								 update_new_stack_pointer)));
 
 	/*************************/
 	/* [17] prepare epilogue */
 	/*************************/
-	epilogue = T_Seq(T_Const(0),T_Const(0));
+	epilogue = T_Seq(restore_previous_stack_pointer,
+					 T_Seq(T_Seq(restore_previous_frame_pointer,
+								 load_return_address),
+						   jump_back_to_return_address));
 
 	/***************************************************************************************/
 	/* [18] this is tricky:                                                                */
