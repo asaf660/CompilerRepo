@@ -276,7 +276,7 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	/************************************/
 	jump_back_to_return_address = T_Seq(T_Move(T_Temp(RA()),
 											   T_Mem(sp)),
-										T_JumpRegister(T_Temp(RA())));
+										T_JumpRegister(RA()));
 
 	/*************************/
 	/* [16] prepare prologue */

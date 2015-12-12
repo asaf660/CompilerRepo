@@ -10,17 +10,45 @@ Label_0_main:
 
 Label_8_PrintPrimesInRange:
 
-	li $t0,0
+	sw $ra,0($sp)
 
-	li $t0,0
+	li $t0,4
+
+	sub $t1,$sp,$t0
+
+	addi $sp,$t1,0
+
+	sw $fp,0($sp)
+
+	addi $fp,$sp,0
+
+	li $t0,4
+
+	sub $t1,$sp,$t0
+
+	addi $sp,$t1,0
 
 	j Label_9_Skip_This_Function_For_Now
 
 Label_10_IsPrime:
 
-	li $t0,0
+	sw $ra,0($sp)
 
-	li $t0,0
+	li $t0,4
+
+	sub $t1,$sp,$t0
+
+	addi $sp,$t1,0
+
+	sw $fp,0($sp)
+
+	addi $fp,$sp,0
+
+	li $t0,12
+
+	sub $t1,$sp,$t0
+
+	addi $sp,$t1,0
 
 	li $t0,-4
 
@@ -226,9 +254,23 @@ Label_12_exit_loop:
 
 	addi $v0,$t1,0
 
-	li $t0,0
+	addi $sp,$fp,0
 
-	li $t0,0
+	lw $t0,0($sp)
+
+	addi $fp,$t0,0
+
+	li $t0,4
+
+	add $t1,$sp,$t0
+
+	addi $sp,$t1,0
+
+	lw $t0,0($sp)
+
+	addi $ra,$t0,0
+
+	jr $ra
 
 Label_9_Skip_This_Function_For_Now:
 
@@ -306,9 +348,23 @@ Label_88_if_not_taken:
 
 Label_66_exit_loop:
 
-	li $t0,0
+	addi $sp,$fp,0
 
-	li $t0,0
+	lw $t0,0($sp)
+
+	addi $fp,$t0,0
+
+	li $t0,4
+
+	add $t1,$sp,$t0
+
+	addi $sp,$t1,0
+
+	lw $t0,0($sp)
+
+	addi $ra,$t0,0
+
+	jr $ra
 
 Label_7_Skip_This_Function_For_Now:
 
