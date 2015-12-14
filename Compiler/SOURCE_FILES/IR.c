@@ -245,7 +245,7 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	update_new_stack_pointer = T_Move(sp,
 									  T_Binop(T_minus,
 											  sp_,
-											  T_Const(frame->size)));
+											  T_Const(frame->size + F_wordSize)));
 	
 	/****************************/
 	/* [12-15] *** EPILOGUE *** */
@@ -502,6 +502,9 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 	Temp_label subscript_le_than_actual_memory_size_allocated_on_heap_ok_label = Temp_newlabel("subscript_le_than_actual_memory_size_allocated_on_heap");
 	T_exp check_subscript_le_than_actual_memory_size_allocated_on_heap=NULL;
 
+	// Yanir's addition
+	T_exp subscript = NULL;
+	
 	switch (var->kind) {
 	case (A_simpleVar):
 
@@ -556,6 +559,14 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		/* [0] trans RECORD */
 		/********************/
 		e = IR_transVarExp(venv,tenv,var->u.field.var,frame);
+		
+		
+		check_initialization = T_Cjump(
+										T_eq,
+										e.exp,
+										T_Const(0),
+										access_violation_label,
+										initialization_ok_label);
 
 		/*******************************************************************************************/
 		/* [1] build exp: take return address of record and add the shift needed for current field */
@@ -583,7 +594,13 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		/******************************/
 		/* [1c] compute actual offset */
 		/******************************/
-		e.exp = T_Mem(T_Binop(T_plus,e.exp,T_Const(fieldOffset * F_wordSize)));
+		e.exp = T_Mem(
+					  check_initialization,
+					  T_Binop(
+						      T_plus,e.exp,
+						      T_Const(fieldOffset * F_wordSize)
+						      )
+					);
 		e.ty = fieldList->head->ty;
 
 		/**************/
@@ -597,7 +614,8 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		/* [0] trans ARRAY */
 		/*******************/
 		e = IR_transVarExp(venv,tenv,var->u.subscript.var,frame);
-
+		subscript = IR_transExp(venv, tenv, var->u.subscript.exp, frame);
+		
 		/******************************************************************************/
 		/* [1] Boundaries checks consist of:                                          */
 		/*                                                                            */
@@ -608,33 +626,65 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		/*     [c] check that subscript is <= allocated size of the array on the heap */ 
 		/*                                                                            */
 		/******************************************************************************/
-		check_initialization = T_Const(0);
 
-		check_subscript_ge_than_zero = T_Const(0);
-			
-		check_subscript_le_than_actual_memory_size_allocated_on_heap = T_Const(0);
+		check_initialization = T_Cjump(
+										T_eq,
+										e.exp,
+										T_Const(0),
+										access_violation_label,
+										initialization_ok_label);
+
+		check_subscript_ge_than_zero = T_Cjump(
+												T_ge,
+												subscript,
+												T_Const(0),
+												subscript_ge_than_zero_ok_label,
+												access_violation_label);
+
+		check_subscript_le_than_actual_memory_size_allocated_on_heap = T_Cjump(
+																				T_le,
+																				subscript,
+																				T_Mem(e.exp),
+																				subscript_le_than_actual_memory_size_allocated_on_heap_ok_label,
+																				access_violation_label);
 
 		boundaries_checks =
 			T_Seq(
 				check_initialization,
 				T_Seq(
-					check_subscript_ge_than_zero,
+					T_Label(initialization_ok_label),
 					T_Seq(
-						check_subscript_le_than_actual_memory_size_allocated_on_heap,
+						check_subscript_ge_than_zero,
 						T_Seq(
-							T_Label(subscript_le_than_actual_memory_size_allocated_on_heap_ok_label),
+							T_Label(subscript_ge_than_zero_ok_label),
 							T_Seq(
-								T_JumpLabel(everything_is_ok_label),
+								check_subscript_le_than_actual_memory_size_allocated_on_heap,
 								T_Seq(
-									T_Label(access_violation_label),
+									T_Label(subscript_le_than_actual_memory_size_allocated_on_heap_ok_label),
 									T_Seq(
-										F_externalCall("Label_4_Access_Violation",NULL),
-										T_Label(everything_is_ok_label))))))));
-
+										T_JumpLabel(everything_is_ok_label),
+										T_Seq(
+											T_Label(access_violation_label),
+											T_Seq(
+												F_externalCall("Label_4_Access_Violation", NULL),
+												T_Label(everything_is_ok_label))))))))));
 		/*****************************/
 		/* [2] compute actual offset */
 		/*****************************/
-		e.exp = T_Const(0);
+		e.exp =
+			T_Mem(
+				T_Seq(
+					boundaries_checks,
+					T_Binop(
+						T_plus,
+						e.exp,
+						T_Binop(
+							T_mul,
+							T_Const(F_wordSize),
+							T_Binop(
+								T_plus,
+								IR_transExp(venv, tenv, var->u.subscript.exp, frame),
+								T_Const(1))))));
 
 		/************/
 		/* [3] type */
