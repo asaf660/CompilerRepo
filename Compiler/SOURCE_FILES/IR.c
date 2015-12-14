@@ -220,33 +220,23 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	/************************************/
 	/* [8] push return address on stack */
 	/************************************/
-	store_return_address = T_Seq(T_Move(T_Mem(sp), 
-										T_Temp(RA())),
-								 T_Move(sp_, 
-										T_Binop(T_minus, 
-												sp__, 
-												T_Const(4))));
+	store_return_address = PUSH(RA());
 
 	/***********************************/
-	/* [9] save frame pointer המלך מת */
+	/* [9] save frame pointer ???? ?? */
 	/***********************************/
-	save_previous_frame_pointer = T_Move(T_Mem(sp), 
-										 fp);
+	save_previous_frame_pointer = T_Move(T_Mem(T_Temp(SP())), T_Temp(FP()));
 
 	/********************************/
-	/* [10] fp = sp יחי המלך החדש */
+	/* [10] fp = sp ??? ???? ???? */
 	/********************************/
-	update_new_frame_pointer = T_Move(fp,
-									  sp);
+	update_new_frame_pointer = T_Move(fp, sp);
 
 	/*****************************/
-	/* [11] sp = sp -  frame size */
+	/* [11] sp = sp - frame size */
 	/*****************************/
-	update_new_stack_pointer = T_Move(sp,
-									  T_Binop(T_minus,
-											  sp_,
-											  T_Const(frame->size + F_wordSize)));
-	
+	update_new_stack_pointer = T_Move(sp, T_Binop(T_minus, sp, T_Const(frame->size + F_wordSize)));
+
 	/****************************/
 	/* [12-15] *** EPILOGUE *** */
 	/****************************/
@@ -254,29 +244,22 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	/****************************/
 	/* [12] restore previous sp */
 	/****************************/
-	restore_previous_stack_pointer = T_Move(sp,
-											fp);
+	restore_previous_stack_pointer = T_Move(sp, fp);
 
 	/****************************/
 	/* [13] restore previous fp */
 	/****************************/
-	restore_previous_frame_pointer = T_Move(fp,
-											T_Mem(sp));
+	restore_previous_frame_pointer = POP(FP());
 
 	/****************************/
 	/* [14] load return address */
 	/****************************/
-	load_return_address = T_Move(sp,
-								 T_Binop(T_plus,
-										 sp_,
-										 T_Const(4)));
+	load_return_address = T_Move(T_Temp(RA()), T_Mem(sp));
 
 	/************************************/
 	/* [15] jump back to return address */
 	/************************************/
-	jump_back_to_return_address = T_Seq(T_Move(T_Temp(RA()),
-											   T_Mem(sp)),
-										T_JumpRegister(RA()));
+	jump_back_to_return_address = T_JumpRegister(RA());
 
 	/*************************/
 	/* [16] prepare prologue */
