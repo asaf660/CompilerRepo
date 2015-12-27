@@ -281,9 +281,34 @@ Temp_temp MIPS_ASM_CodeGeneration_Call(T_exp t)
 	int numParameters=0;
 	T_expList expList=t->u.CALL.args;
 
+	// Our addition
+	//Temp_temp t0 = Temp_newtemp("");
+	//Temp_temp t1 = Temp_newtemp("");
+	//Temp_temp t2 = Temp_newtemp("");
+	//Temp_temp t3 = Temp_newtemp("");
+	//Temp_temp t4 = Temp_newtemp("");
+	//Temp_temp t5 = Temp_newtemp("");
+	//Temp_temp t6 = Temp_newtemp("");
+	//Temp_temp t7 = Temp_newtemp("");
+
 	/***********************************************************/
 	/* [1] save registers $t0-$t7 by pushing them on the stack */
 	/***********************************************************/
+
+	for (; i < 8; i++) {
+		fprintf(fl,
+			"\tsub %s,%s,4\n\n",
+			Temp_look(Temp_name(), SP()),
+			Temp_look(Temp_name(), SP())
+			);
+
+		fprintf(fl,
+			"\tsw $t%d,(%s)\n\n",
+			i,
+			Temp_look(Temp_name(), SP())
+			);
+	}
+
 
 	/***********************************/
 	/* [2] pass all arguments on stack */
@@ -295,19 +320,61 @@ Temp_temp MIPS_ASM_CodeGeneration_Call(T_exp t)
 	/**********************************************************************************************/
 	for (;expList;expList=expList->tail)
 	{
+		Temp_temp temp = MIPS_ASM_codeGeneration(expList->head);
+
+		fprintf(fl,
+			"\tsub %s,%s,4\n\n",
+			Temp_look(Temp_name(), SP()),
+			Temp_look(Temp_name(), SP())
+			);
+
+		fprintf(fl,
+			"\tsw %s,(%s)\n\n",
+			Temp_look(Temp_name(), temp),
+			Temp_look(Temp_name(), SP())
+			);
+
+		numParameters++;
 	}
 
 	/***********************************************************************/
 	/* [3] jump to function and remember the PC to know where to return to */
 	/***********************************************************************/
 
+	fprintf(fl,
+		"\tjal %s\n\n",
+		Temp_labelstring( t->u.CALL.name)
+		);
+
 	/******************************************/
 	/* [4] pop outgoing parameters from stack */
 	/******************************************/
+	
+		fprintf(fl,
+			"\taddi %s,%d,%s\n\n",
+			Temp_look(Temp_name(), SP()),
+			numParameters * 4,
+			Temp_look(Temp_name(), SP())			
+			);
 
 	/****************************************/
 	/* [4] pop registers $t0-$t7 from stack */
 	/****************************************/
+
+	for (i = 7; i >= 0; i--) {
+		
+		fprintf(fl,
+			"\tlw $t%d,(%s)\n\n",
+			i,
+			Temp_look(Temp_name(), SP())
+			);
+
+		fprintf(fl,
+			"\taddi %s,4,%s\n\n",
+			Temp_look(Temp_name(), SP()),
+			Temp_look(Temp_name(), SP())
+			);
+	}
 
 	/********************/
 	/* [5] return value */
