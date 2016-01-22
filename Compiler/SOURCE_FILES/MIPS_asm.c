@@ -129,7 +129,8 @@ void MIPS_ASM_ALLOCATE_ARRAY_IMPLEMENTATION(void)
 	/*********************/
 	fprintf(fl,"Label_2_AllocateArray:\n\n");
 
-	fprintf(fl,"\tlw $t1,4(%s)\n\n", Temp_look(Temp_name(), SP())); // Get the number of record fields from the stack
+	 //fprintf(fl, "\tlw $t1,4(%s)\n\n", Temp_look(Temp_name(), SP()));
+	fprintf(fl, "\tlw $t1,0(%s)\n\n", Temp_look(Temp_name(), SP()));
 	fprintf(fl,"\tli $t2,4\n\n");
 	fprintf(fl,"\tmul $a0,$t1,$t2\n\n"); // a0 = the space ammount that should be allocated on the heap
 	fprintf(fl,"\taddi $a0,$a0,4 \n\n"); // a0 = the space ammount that should be allocated on the heap + 4
@@ -137,26 +138,33 @@ void MIPS_ASM_ALLOCATE_ARRAY_IMPLEMENTATION(void)
 	allocateSpaceOnTheHeap(); // allocate space on the heap
 
 	// load the array pointer from the stack and store it in the heap
-	fprintf(fl,"\tlw $t0,4($sp)\n\n"); // t0 = array size
+	 //fprintf(fl, "\tlw $t0,4($sp)\n\n"); // t0 = array size
+	fprintf(fl, "\tlw $t0,0($sp)\n\n"); // t0 = array size
 	fprintf(fl,"\tsw $t0,0($v0)\n\n"); // v0[0] = t0
 	
 
 	fprintf(fl,"\taddi $v0,$v0,4\n\n"); // v0 = Array first element address
 	
-	fprintf(fl,"\taddi $t0, $v0, 0\n\n"); // t1 points to the address of the current element of the array in the heap
-	fprintf(fl,"\tlw $t1, 4(%s)\n\n", Temp_look(Temp_name(), SP())); // t1 = array size
-	fprintf(fl,"\tlw $t2, 8(%s)\n\n", Temp_look(Temp_name(), SP())); // t2 = initial value of the array
+	fprintf(fl,"\taddi $t0, $v0, 0\n\n"); // t0 points to the address of the current element of the array in the heap
+	 //fprintf(fl, "\tlw $t1, 4(%s)\n\n", Temp_look(Temp_name(), SP())); // t1 = array size
+	 //fprintf(fl, "\tlw $t2, 8(%s)\n\n", Temp_look(Temp_name(), SP())); // t2 = initial value of the array
+	fprintf(fl, "\tlw $t1, 0(%s)\n\n", Temp_look(Temp_name(), SP())); // t1 = array size
+	fprintf(fl, "\tlw $t2, 4(%s)\n\n", Temp_look(Temp_name(), SP())); // t2 = initial value of the array
+
 	fprintf(fl,"\tli $t3,0\n\n"); // t3 = 0
 
 	// Loop starts here
 
 	fprintf(fl,"\tLabel_5_LoopEntryPoint:\n\n");
-	fprintf(fl,"\tbge $t3,$t1,Label_6_ExitLoop\n\n"); // if t3 == t1 exit loop
+	fprintf(fl,"\tbge $t3,$t1,Label_6_ExitLoop\n\n"); // if t3 >= t1 exit loop
 	fprintf(fl,"\tsw $t2,0($t0)\n\n"); // store array's initial value on the heap
 	fprintf(fl,"\taddi $t3,$t3,1\n\n"); // t3 = t3+1
 	fprintf(fl,"\taddi $t0,$t0,4\n\n"); // t0 = the next element of the array
 	fprintf(fl,"\tj Label_5_LoopEntryPoint\n\n");
-	fprintf(fl,"\Label_6_ExitLoop:\n\n");
+	fprintf(fl,"\tLabel_6_ExitLoop:\n\n");
+
+	fprintf(fl, "\taddi $v0,$v0,-4\n\n"); // return v0 to the start of the array
+
 
 	// Return
 	fprintf(fl, "\tjr $ra\n\n");
@@ -167,7 +175,7 @@ void MIPS_ASM_PRINT_IMPLEMENTATION(void)
 	/****************************/
 	/* [1] Print function label */
 	/****************************/
-	fprintf(fl,"Label_3_PrintInt:\n\n");
+	fprintf(fl,"\tLabel_3_PrintInt:\n\n");
 
 	/**********************************************************/
 	/* [2] Load argument to system call parameter register a0 */
@@ -351,15 +359,6 @@ Temp_temp MIPS_ASM_CodeGeneration_Call(T_exp t)
 	int numParameters = 0;
 	T_expList expList = t->u.CALL.args;
 
-	// Our addition
-	//Temp_temp t0 = Temp_newtemp("");
-	//Temp_temp t1 = Temp_newtemp("");
-	//Temp_temp t2 = Temp_newtemp("");
-	//Temp_temp t3 = Temp_newtemp("");
-	//Temp_temp t4 = Temp_newtemp("");
-	//Temp_temp t5 = Temp_newtemp("");
-	//Temp_temp t6 = Temp_newtemp("");
-	//Temp_temp t7 = Temp_newtemp("");
 
 	/***********************************************************/
 	/* [1] save registers $t0-$t7 by pushing them on the stack */
@@ -373,11 +372,23 @@ Temp_temp MIPS_ASM_CodeGeneration_Call(T_exp t)
 			);
 
 		fprintf(fl,
-			//"\tsw $t%d,(%s)\n\n",
 			"\tsw $t%d,0(%s)\n\n",
 			i,
 			Temp_look(Temp_name(), SP())
 			);
+
+		//fprintf(fl,
+		//	"\tsw $t%d,0(%s)\n\n",
+		//	i,
+		//	Temp_look(Temp_name(), SP())
+		//	);
+
+		//fprintf(fl,
+		//	"\taddi %s,%s,-4\n\n",
+		//	Temp_look(Temp_name(), SP()),
+		//	Temp_look(Temp_name(), SP())
+		//	);
+
 	}
 
 
@@ -405,8 +416,23 @@ Temp_temp MIPS_ASM_CodeGeneration_Call(T_exp t)
 			Temp_look(Temp_name(), SP())
 			);
 
+		//fprintf(fl,
+		//	"\tsw %s,0(%s)\n\n",
+		//	Temp_look(Temp_name(), temp),
+		//	Temp_look(Temp_name(), SP())
+		//	);
+
+
+		//fprintf(fl,
+		//	"\taddi %s,%s,-4\n\n",
+		//	Temp_look(Temp_name(), SP()),
+		//	Temp_look(Temp_name(), SP())
+		//	);
+
 		numParameters++;
 	}
+
+
 
 	/***********************************************************************/
 	/* [3] jump to function and remember the PC to know where to return to */
@@ -445,6 +471,20 @@ Temp_temp MIPS_ASM_CodeGeneration_Call(T_exp t)
 			Temp_look(Temp_name(), SP()),
 			Temp_look(Temp_name(), SP())
 			);
+
+		//fprintf(fl,
+		//	"\taddi %s,%s,4\n\n",
+		//	Temp_look(Temp_name(), SP()),
+		//	Temp_look(Temp_name(), SP())
+		//	);
+
+
+		//fprintf(fl,
+		//	"\tlw $t%d,0(%s)\n\n",
+		//	i,
+		//	Temp_look(Temp_name(), SP())
+		//	);
+
 	}
 
 	/********************/

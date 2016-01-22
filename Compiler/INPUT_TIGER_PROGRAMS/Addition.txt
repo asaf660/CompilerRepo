@@ -1,0 +1,10 @@
+let
+	var a:int := 8
+	var b:int := 9
+	var c:int
+in
+(
+	c := a + b;
+	PrintInt(c)
+)
+end

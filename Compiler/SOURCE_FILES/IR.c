@@ -225,7 +225,8 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	/***********************************/
 	/* [9] save frame pointer ???? ?? */
 	/***********************************/
-	save_previous_frame_pointer = T_Move(T_Mem(T_Temp(SP())), T_Temp(FP()));
+	save_previous_frame_pointer = PUSH(FP());
+	//save_previous_frame_pointer = T_Move(T_Mem(T_Temp(SP())), T_Temp(FP()));
 
 	/********************************/
 	/* [10] fp = sp ??? ???? ???? */
@@ -476,7 +477,8 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 	Ty_fieldList fieldList;
 	struct expty e={NULL,NULL};
 	T_exp boundaries_checks=NULL;
-	T_exp check_initialization=NULL;
+	T_exp check_initialization = NULL;
+	T_exp check_initialization_record = NULL;
 	T_exp check_subscript_ge_than_zero=NULL;
 	Temp_label access_violation_label = Temp_newlabel("access_violation");
 	Temp_label everything_is_ok_label = Temp_newlabel("everything_is_ok");

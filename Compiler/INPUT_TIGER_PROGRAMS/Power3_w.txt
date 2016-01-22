@@ -1,0 +1,25 @@
+let
+	var i:int := 8
+
+	function Power(p:int) : int =
+
+	let
+
+		var returnedValue := 1
+
+	in
+	(
+
+		returnedValue := p * p;
+		returnedValue := returnedValue * p;
+		returnedValue
+	)
+
+	end
+
+in
+(
+	i := Power(7);
+	PrintInt(i)
+)
+end

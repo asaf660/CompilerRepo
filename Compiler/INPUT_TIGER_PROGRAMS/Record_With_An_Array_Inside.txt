@@ -11,16 +11,6 @@ let
 in
 
 	(
-		oren->lastYearSalaries := int[12] of 7800;
-
-		oren->lastYearSalaries[7] := 3;
-
-		PrintInt(oren->lastYearSalaries[7] + oren->lastYearSalaries[6]);
-
-		oren->MyAddress := address{69207,19};
-
-		PrintInt(oren->MyAddress->ZIPcode + oren->MyAddress->Appartment);
-
 		PrintInt(oren->ID)
 	)
 
