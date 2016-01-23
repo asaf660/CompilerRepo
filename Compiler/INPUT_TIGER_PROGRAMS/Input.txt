@@ -1,20 +1,11 @@
 let
+	type address = {ZIPcode:int, Appartment:int}
 
-	type Vec3 = array of int
-
-	type Mat3 = array of Vec3
-
-	var mat:Mat3 := Vec3[3] of nil
-
+	var a:address := address{15, 37}
 in
-
-	(
-
-		mat[2] := int[3] of 12;
-
-		mat[2][2] := 800;
-
-		PrintInt(mat[2][2])
-	)
+(
+	a := nil;
+	PrintInt(a->ZIPcode)
+)
 
 end

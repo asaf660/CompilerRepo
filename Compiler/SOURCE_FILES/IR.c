@@ -553,6 +553,15 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 										access_violation_label,
 										initialization_ok_label);
 
+		boundaries_checks =
+			T_Seq(
+				check_initialization,
+				T_Seq(
+					T_Label(access_violation_label),
+					T_Seq(
+						F_externalCall("Label_4_Access_Violation", NULL),
+						T_Label(initialization_ok_label))));
+
 		/*******************************************************************************************/
 		/* [1] build exp: take return address of record and add the shift needed for current field */
 		/*                                                                                         */
@@ -580,12 +589,14 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		/* [1c] compute actual offset */
 		/******************************/
 		e.exp = T_Mem(
-					  check_initialization,
-					  T_Binop(
+					T_Seq(
+						boundaries_checks,
+						T_Binop(
 						      T_plus,e.exp,
 						      T_Const(fieldOffset * F_wordSize)
-						      )
-					);
+						)
+					));
+
 		e.ty = fieldList->head->ty;
 
 		/**************/
