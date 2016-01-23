@@ -65,17 +65,27 @@ void MIPS_ASM_ALLOCATE_RECORD_IMPLEMENTATION(void)
 	/*********************/
 	fprintf(fl,"\tLabel_1_AllocateRecord:\n\n");
 
-	fprintf(fl, "\tlw $t1,4(%s)\n\n", Temp_look(Temp_name(), SP())); // Get the number of record fields from the stack
+	// fprintf(fl, "\tlw $t1,4(%s)\n\n", Temp_look(Temp_name(), SP())); // Get the number of record fields from the stack
+	fprintf(fl, "\tlw $t1,0(%s)\n\n", Temp_look(Temp_name(), SP())); // Get the number of record fields from the stack
 	fprintf(fl, "\tli $t2,4\n\n");
 	fprintf(fl, "\tmul $a0,$t1,$t2\n\n"); // a0 = the space ammount that should be allocated on the heap
+	fprintf(fl, "\taddi $a0,$a0,4 \n\n"); // a0 = the space ammount that should be allocated on the heap + 4
 
 	allocateSpaceOnTheHeap(); // allocate space on the heap
 
 	fprintf(fl,"\tli $t1,0\n\n"); // t1 = 0
 	fprintf(fl,"\taddi $t2,$v0,0\n\n"); // t2 = record pointer
-	fprintf(fl,"\tlw $t3,4(%s)\n\n", Temp_look(Temp_name(), SP())); // t3 = 1st value of the stack (number of fields in the record)
+	
+										// fprintf(fl,"\tlw $t3,4(%s)\n\n", Temp_look(Temp_name(), SP())); // t3 = 1st value of the stack (number of fields in the record)
+	fprintf(fl, "\tlw $t3,0(%s)\n\n", Temp_look(Temp_name(), SP())); // t3 = 1st value of the stack (number of fields in the record)
+	// fprintf(fl, "\tsw $t3, 0($v0)\n\n"); // Store the number of fields in the 1st cell
+
 	fprintf(fl, "\tli $t4,4\n\n"); // t4 = 4
-	fprintf(fl, "\taddi $t5,%s,8\n\n", Temp_look(Temp_name(), SP())); // t5 = Address of the 2nd value on the stack (1st record field)
+	fprintf(fl, "\taddi $t5,%s,4\n\n", Temp_look(Temp_name(), SP())); // t5 = Address of the 2nd value on the stack (1st record field)
+	fprintf(fl, "\taddi $t2,$t2,4\n\n"); // t2 = Address of the 2nd value on the Heap (1st record field)
+
+
+
 
 	// Loop starts here
 
