@@ -4,6 +4,7 @@ let
 	var a:address := address{15, 37}
 in
 (
+	PrintInt(a->Appartment);
 	PrintInt(a->ZIPcode)
 )
 

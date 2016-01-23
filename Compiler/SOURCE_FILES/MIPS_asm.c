@@ -69,7 +69,7 @@ void MIPS_ASM_ALLOCATE_RECORD_IMPLEMENTATION(void)
 	fprintf(fl, "\tlw $t1,0(%s)\n\n", Temp_look(Temp_name(), SP())); // Get the number of record fields from the stack
 	fprintf(fl, "\tli $t2,4\n\n");
 	fprintf(fl, "\tmul $a0,$t1,$t2\n\n"); // a0 = the space ammount that should be allocated on the heap
-	fprintf(fl, "\taddi $a0,$a0,4 \n\n"); // a0 = the space ammount that should be allocated on the heap + 4
+	//fprintf(fl, "\taddi $a0,$a0,4 \n\n"); // a0 = the space ammount that should be allocated on the heap + 4
 
 	allocateSpaceOnTheHeap(); // allocate space on the heap
 
@@ -82,9 +82,6 @@ void MIPS_ASM_ALLOCATE_RECORD_IMPLEMENTATION(void)
 
 	fprintf(fl, "\tli $t4,4\n\n"); // t4 = 4
 	fprintf(fl, "\taddi $t5,%s,4\n\n", Temp_look(Temp_name(), SP())); // t5 = Address of the 2nd value on the stack (1st record field)
-	fprintf(fl, "\taddi $t2,$t2,4\n\n"); // t2 = Address of the 2nd value on the Heap (1st record field)
-
-
 
 
 	// Loop starts here
