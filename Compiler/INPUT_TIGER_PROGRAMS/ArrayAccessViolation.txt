@@ -1,0 +1,9 @@
+let
+	type IntArray = array of int
+	var a:IntArray := int[3] of 15
+
+in
+(
+	a[4] := 1
+)
+end

@@ -475,7 +475,7 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 	int fieldOffset=0;
 	E_enventry envEntry;
 	Ty_fieldList fieldList;
-	struct expty e={NULL,NULL};
+	struct expty e = { NULL, NULL }, e2 = { NULL, NULL }, e3 = { NULL, NULL };
 	T_exp boundaries_checks=NULL;
 	T_exp check_initialization = NULL;
 	T_exp check_initialization_record = NULL;
@@ -489,6 +489,7 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 
 	// Yanir's addition
 	T_exp subscript = NULL;
+	T_exp mem = NULL;
 	
 	switch (var->kind) {
 	case (A_simpleVar):
@@ -610,6 +611,8 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		/* [0] trans ARRAY */
 		/*******************/
 		e = IR_transVarExp(venv,tenv,var->u.subscript.var,frame);
+		e2 = IR_transVarExp(venv, tenv, var->u.subscript.var, frame);
+		e3 = IR_transVarExp(venv, tenv, var->u.subscript.var, frame);
 		subscript = IR_transExp(venv, tenv, var->u.subscript.exp, frame);
 		
 		/******************************************************************************/
@@ -625,7 +628,7 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 
 		check_initialization = T_Cjump(
 										T_eq,
-										e.exp,
+										e2.exp,
 										T_Const(0),
 										access_violation_label,
 										initialization_ok_label);
@@ -638,9 +641,9 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 												access_violation_label);
 
 		check_subscript_le_than_actual_memory_size_allocated_on_heap = T_Cjump(
-																				T_le,
+																				T_lt,
 																				subscript,
-																				T_Mem(e.exp),
+																				T_Mem(e3.exp),
 																				subscript_le_than_actual_memory_size_allocated_on_heap_ok_label,
 																				access_violation_label);
 
