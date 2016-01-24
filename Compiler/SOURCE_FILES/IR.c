@@ -545,11 +545,11 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		/* [0] trans RECORD */
 		/********************/
 		e = IR_transVarExp(venv,tenv,var->u.field.var,frame);
-		
+		e2 = IR_transVarExp(venv, tenv, var->u.field.var, frame);
 		
 		check_initialization = T_Cjump(
 										T_eq,
-										e.exp,
+										e2.exp,
 										T_Const(0),
 										access_violation_label,
 										initialization_ok_label);
