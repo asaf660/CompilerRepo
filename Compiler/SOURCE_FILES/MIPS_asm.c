@@ -101,6 +101,7 @@ void MIPS_ASM_ALLOCATE_RECORD_IMPLEMENTATION(void)
 
 
 	// Return
+
 	fprintf(fl, "\tjr $ra\n\n");
 
 }
@@ -171,7 +172,6 @@ void MIPS_ASM_ALLOCATE_ARRAY_IMPLEMENTATION(void)
 	fprintf(fl,"\tLabel_6_ExitLoop:\n\n");
 
 	fprintf(fl, "\taddi $v0,$v0,-4\n\n"); // return v0 to the start of the array
-
 
 	// Return
 	fprintf(fl, "\tjr $ra\n\n");
@@ -449,6 +449,17 @@ Temp_temp MIPS_ASM_CodeGeneration_Call(T_exp t)
 		"\tjal %s\n\n",
 		Temp_labelstring(t->u.CALL.name)
 		);
+
+	///***********************************************************************/
+	///* [3.5] Pop leftover return address from stack (Asaf's fix)
+	///***********************************************************************/
+
+	//fprintf(fl,
+	//	"\taddi %s,%s,%d\n\n",
+	//	Temp_look(Temp_name(), SP()),
+	//	Temp_look(Temp_name(), SP()),
+	//	4
+	//	);
 
 	/******************************************/
 	/* [4] pop outgoing parameters from stack */

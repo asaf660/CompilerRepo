@@ -255,7 +255,7 @@ T_exp IR_transFuncDec(S_table venv,S_table tenv, A_dec dec)
 	/****************************/
 	/* [14] load return address */
 	/****************************/
-	load_return_address = T_Move(T_Temp(RA()), T_Mem(sp));
+	load_return_address = POP(RA());
 
 	/************************************/
 	/* [15] jump back to return address */
