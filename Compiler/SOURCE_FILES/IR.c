@@ -489,6 +489,7 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 
 	// Yanir's addition
 	T_exp subscript = NULL;
+	T_exp subscript2 = NULL;
 	T_exp mem = NULL;
 	
 	switch (var->kind) {
@@ -614,6 +615,7 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 		e2 = IR_transVarExp(venv, tenv, var->u.subscript.var, frame);
 		e3 = IR_transVarExp(venv, tenv, var->u.subscript.var, frame);
 		subscript = IR_transExp(venv, tenv, var->u.subscript.exp, frame);
+		subscript2 = IR_transExp(venv, tenv, var->u.subscript.exp, frame);
 		
 		/******************************************************************************/
 		/* [1] Boundaries checks consist of:                                          */
@@ -642,7 +644,7 @@ struct expty IR_transVarExp(S_table venv,S_table tenv,A_var var,F_frame frame)
 
 		check_subscript_le_than_actual_memory_size_allocated_on_heap = T_Cjump(
 																				T_lt,
-																				subscript,
+																				subscript2,
 																				T_Mem(e3.exp),
 																				subscript_le_than_actual_memory_size_allocated_on_heap_ok_label,
 																				access_violation_label);

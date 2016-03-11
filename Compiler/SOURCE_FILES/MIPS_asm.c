@@ -554,15 +554,19 @@ Temp_temp MIPS_ASM_CodeGeneration_Move(T_exp t)
 	}
 	if (t->u.MOVE.dst->kind == T_MEM)
 	{
+
+
 		/***********************************/
-		/* [1] move dst expression to temp */
+		/* [1] move src expression to temp */
+		/***********************************/
+		Temp_temp src = MIPS_ASM_codeGeneration(t->u.MOVE.src);
+
+
+		/***********************************/
+		/* [2] move dst expression to temp */
 		/***********************************/
 		Temp_temp dst = MIPS_ASM_codeGeneration(t->u.MOVE.dst->u.MEM);
 
-		/***********************************/
-		/* [2] move src expression to temp */
-		/***********************************/
-		Temp_temp src = MIPS_ASM_codeGeneration(t->u.MOVE.src);
 
 		/**********************************/
 		/* [3] generate store instruction */
